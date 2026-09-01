@@ -11,7 +11,6 @@ function dependencies(
     outcome: "inserted",
     traceId: "8C41C7D7-0959-4CA2-A73F-A623C50F11C9",
     appId: "00000000-0000-4000-8000-000000000001",
-    environment: "development",
   }),
 ) {
   const events: IngestTelemetry[] = [];
@@ -36,7 +35,7 @@ describe("POST /v1/traces", () => {
     expect(await response.text()).toBe("");
     expect(context.submit).toHaveBeenCalledOnce();
     expect(context.submit.mock.calls[0]?.[0]).toMatchObject({
-      keyPrefix: "lk_abcdefghijkl",
+      keyPrefix: "lk_test_abcdefghijkl",
       payload: fixtureEnvelope(),
     });
     expect(context.submit.mock.calls[0]?.[0].secretDigestHex).toMatch(
@@ -57,7 +56,6 @@ describe("POST /v1/traces", () => {
         outcome: "duplicate",
         traceId: "8C41C7D7-0959-4CA2-A73F-A623C50F11C9",
         appId: "00000000-0000-4000-8000-000000000001",
-        environment: "development",
       }),
     );
     expect(

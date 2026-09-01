@@ -1,5 +1,5 @@
 export type JsonObject = Record<string, unknown>;
-export type LedgeEnvironment = "development" | "staging" | "production";
+export type IngestKeyMode = "live" | "test";
 
 export interface ValidatedEnvelope {
   payload: JsonObject;
@@ -18,5 +18,4 @@ export interface RpcResult {
   outcome: "inserted" | "duplicate";
   traceId: string;
   appId: string;
-  environment: LedgeEnvironment;
 }

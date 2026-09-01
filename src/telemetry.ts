@@ -1,5 +1,3 @@
-import type { LedgeEnvironment } from "./types.js";
-
 export interface IngestTelemetry {
   requestId: string;
   status: number;
@@ -8,7 +6,6 @@ export interface IngestTelemetry {
   errorCode?: string;
   keyPrefix?: string;
   appId?: string;
-  environment?: LedgeEnvironment;
   traceId?: string;
   traceName?: string;
   traceVersion?: number;

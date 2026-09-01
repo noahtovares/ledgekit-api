@@ -1,5 +1,7 @@
 import postgres from "postgres";
 
+import type { IngestKeyMode } from "../src/types.js";
+
 export function argument(name: string): string | undefined {
   const index = process.argv.indexOf(`--${name}`);
   return index >= 0 ? process.argv[index + 1] : undefined;
@@ -11,12 +13,12 @@ export function requiredArgument(name: string): string {
   return value;
 }
 
-export function requiredEnvironment(): string {
-  const environment = requiredArgument("environment");
-  if (!["development", "staging", "production"].includes(environment)) {
-    throw new Error("invalid_environment");
+export function requiredKeyMode(): IngestKeyMode {
+  const mode = requiredArgument("mode");
+  if (mode !== "live" && mode !== "test") {
+    throw new Error("invalid_mode");
   }
-  return environment;
+  return mode;
 }
 
 export function operatorDatabase() {

@@ -1,8 +1,9 @@
 import { createHash, randomBytes } from "node:crypto";
 
-import type { IngestCredential } from "./types.js";
+import type { IngestCredential, IngestKeyMode } from "./types.js";
 
-const TOKEN_PATTERN = /^(lk_[A-Za-z0-9_-]{12,16})\.([A-Za-z0-9_-]{43})$/;
+const TOKEN_PATTERN =
+  /^(lk_(?:live|test)_[A-Za-z0-9_-]{12,16})\.([A-Za-z0-9_-]{43})$/;
 
 export function parseAuthorization(
   authorization: string | null,
@@ -17,13 +18,13 @@ export function digestSecret(secret: string): string {
   return createHash("sha256").update(secret, "utf8").digest("hex");
 }
 
-export function generateIngestToken(): {
+export function generateIngestToken(mode: IngestKeyMode): {
   token: string;
   keyPrefix: string;
   secretDigestHex: string;
 } {
   const publicPart = randomBytes(9).toString("base64url");
-  const keyPrefix = `lk_${publicPart}`;
+  const keyPrefix = `lk_${mode}_${publicPart}`;
   const secret = randomBytes(32).toString("base64url");
   return {
     token: `${keyPrefix}.${secret}`,

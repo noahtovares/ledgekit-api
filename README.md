@@ -70,13 +70,14 @@ DATABASE_URL=... npm run create-app -- \
 
 DATABASE_URL=... npm run create-key -- \
   --app-id <app-uuid> \
-  --environment development \
+  --mode test \
   --name local-development
 ```
 
 `create-key` prints the complete ingest key exactly once. Store it immediately
-in the application's secret configuration. The authenticated key determines
-the trusted environment; clients cannot select an environment in a trace.
+in the application's secret configuration. Keys begin with `lk_live_` or
+`lk_test_`; the mode is a visible safety marker, while `name` is free-form
+operator metadata such as `production-2026-09`.
 
 Run a sanitized end-to-end request:
 
@@ -89,7 +90,7 @@ Rotate a key by creating and verifying a replacement before revoking the old
 prefix:
 
 ```sh
-DATABASE_URL=... npm run revoke-key -- --key-prefix lk_exampleprefix
+DATABASE_URL=... npm run revoke-key -- --key-prefix lk_test_abcdefghijkl
 ```
 
 ## Retention
@@ -109,7 +110,6 @@ Operators can delete a specific trace with:
 ```sql
 select ledge_private.delete_trace(
   '<app-id>',
-  'production',
   '<trace-id>'
 );
 ```

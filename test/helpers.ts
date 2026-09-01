@@ -2,7 +2,7 @@ import fixture from "./fixtures/ledge-trace-v1.json" with { type: "json" };
 
 import type { RuntimeConfig } from "../src/config.js";
 
-export const ingestToken = `lk_abcdefghijkl.${"A".repeat(43)}`;
+export const ingestToken = `lk_test_abcdefghijkl.${"A".repeat(43)}`;
 
 export const testConfig: RuntimeConfig = {
   supabaseURL: "https://example.supabase.co",

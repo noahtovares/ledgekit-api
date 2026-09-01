@@ -4,10 +4,10 @@ export interface RuntimeConfig {
 }
 
 export function loadRuntimeConfig(
-  environment: NodeJS.ProcessEnv = process.env,
+  processEnvironment: NodeJS.ProcessEnv = process.env,
 ): RuntimeConfig {
-  const supabaseURL = environment.SUPABASE_URL?.replace(/\/$/, "");
-  const supabaseSecretKey = environment.SUPABASE_SECRET_KEY;
+  const supabaseURL = processEnvironment.SUPABASE_URL?.replace(/\/$/, "");
+  const supabaseSecretKey = processEnvironment.SUPABASE_SECRET_KEY;
   if (!supabaseURL || !supabaseSecretKey) {
     throw new Error("missing_supabase_configuration");
   }
