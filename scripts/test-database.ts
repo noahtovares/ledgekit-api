@@ -71,7 +71,7 @@ try {
     returning id
   `;
   assert(app);
-  await sql`
+  const [testKey] = await sql<{ id: string }[]>`
     insert into ledge_private.ledge_ingest_keys (
       app_id,
       name,
@@ -83,7 +83,9 @@ try {
       'lk_test_abcdefghijkl',
       decode(${digest}, 'hex')
     )
+    returning id
   `;
+  assert(testKey);
 
   const inserted = await ingest("lk_test_abcdefghijkl", digest, fixture);
   assert.equal(inserted.outcome, "inserted");
@@ -97,12 +99,14 @@ try {
   assert(countRow);
   assert.equal(countRow.count, 1);
 
-  const stored = await sql<{ envelope: JsonObject }[]>`
-    select envelope from ledge_private.ledge_traces
+  const stored = await sql<{ ingestKeyId: string; envelope: JsonObject }[]>`
+    select ingest_key_id as "ingestKeyId", envelope
+      from ledge_private.ledge_traces
   `;
+  assert.equal(stored[0]?.ingestKeyId, testKey.id);
   assert.deepEqual(stored[0]?.envelope, fixture);
 
-  await sql`
+  const [liveKey] = await sql<{ id: string }[]>`
     insert into ledge_private.ledge_ingest_keys (
       app_id,
       name,
@@ -114,7 +118,9 @@ try {
       'lk_live_mnopqrstuvwx',
       decode(${productionDigest}, 'hex')
     )
+    returning id
   `;
+  assert(liveKey);
   const liveDuplicate = await ingest(
     "lk_live_mnopqrstuvwx",
     productionDigest,
@@ -123,6 +129,14 @@ try {
   assert.equal(liveDuplicate.outcome, "duplicate");
   assert.equal(liveDuplicate.appId, app.id);
 
+  const [attributionAfterRetry] = await sql<{ ingestKeyId: string }[]>`
+    select ingest_key_id as "ingestKeyId"
+      from ledge_private.ledge_traces
+     where app_id = ${app.id}::uuid
+       and id = ${fixtureTraceID}::uuid
+  `;
+  assert.equal(attributionAfterRetry?.ingestKeyId, testKey.id);
+
   const [sharedIdentityCount] = await sql<{ count: number }[]>`
     select count(*)::integer as count
       from ledge_private.ledge_traces
@@ -130,6 +144,39 @@ try {
        and id = ${fixtureTraceID}::uuid
   `;
   assert.equal(sharedIdentityCount?.count, 1);
+
+  const [otherApp] = await sql<{ id: string }[]>`
+    insert into ledge_private.ledge_apps (service_name)
+    values ('other-app')
+    returning id
+  `;
+  assert(otherApp);
+  const [otherAppKey] = await sql<{ id: string }[]>`
+    insert into ledge_private.ledge_ingest_keys (
+      app_id,
+      name,
+      key_prefix,
+      secret_digest
+    ) values (
+      ${otherApp.id}::uuid,
+      'other-test',
+      'lk_test_zyxwvutsrqpo',
+      decode(${digest}, 'hex')
+    )
+    returning id
+  `;
+  assert(otherAppKey);
+  await assert.rejects(
+    sql.begin(async (transaction) => {
+      await transaction`
+        update ledge_private.ledge_traces
+           set ingest_key_id = ${otherAppKey.id}::uuid
+         where app_id = ${app.id}::uuid
+           and id = ${fixtureTraceID}::uuid
+      `;
+    }),
+    (error: unknown) => (error as { code?: string }).code === "23503",
+  );
 
   const conflict = structuredClone(fixture);
   (conflict.trace as JsonObject).output = { changed: true };
@@ -258,6 +305,16 @@ try {
     ),
     (error: unknown) =>
       error instanceof SupabaseRpcError && error.kind === "invalid_key",
+  );
+
+  await assert.rejects(
+    sql.begin(async (transaction) => {
+      await transaction`
+        delete from ledge_private.ledge_ingest_keys
+         where id = ${testKey.id}::uuid
+      `;
+    }),
+    (error: unknown) => (error as { code?: string }).code === "23503",
   );
 
   console.log("database integration tests passed");

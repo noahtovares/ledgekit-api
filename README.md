@@ -79,6 +79,10 @@ in the application's secret configuration. Keys begin with `lk_live_` or
 `lk_test_`; the mode is a visible safety marker, while `name` is free-form
 operator metadata such as `production-2026-09`.
 
+Every trace stores the internal ID of the key that first committed it. Raw
+tokens and secret digests are never copied into trace rows. Revoke keys instead
+of deleting them so this audit link remains intact.
+
 Run a sanitized end-to-end request:
 
 ```sh
