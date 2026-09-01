@@ -31,6 +31,14 @@ export function createApp(dependencies: AppDependencies): Hono<AppEnvironment> {
   app.use("*", requestId());
   app.use("*", secureHeaders());
 
+  app.get("/", (context) =>
+    context.json(
+      { service: "ledgekit-api", status: "ok" },
+      200,
+      { "Cache-Control": "no-store" },
+    ),
+  );
+
   app.get("/health", (context) =>
     context.json(
       { status: "ok" },

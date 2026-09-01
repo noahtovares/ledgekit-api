@@ -24,6 +24,19 @@ function testApp(
 }
 
 describe("Hono application", () => {
+  test("identifies the service at the project root", async () => {
+    const { app, submit } = testApp();
+    const response = await app.request("/");
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      service: "ledgekit-api",
+      status: "ok",
+    });
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(submit).not.toHaveBeenCalled();
+  });
+
   test("reports process health without touching Supabase", async () => {
     const { app, submit } = testApp();
     const response = await app.request("/health", {

@@ -12,6 +12,9 @@ POST /v1/traces -> Vercel Function -> Supabase PostgREST RPC -> PostgreSQL
 routing, request IDs, security headers, and top-level errors; ingestion and
 storage remain framework-independent.
 
+`GET /` returns a minimal service identifier for people opening the deployment
+URL in a browser.
+
 The application limit is exactly 4 MiB (4,194,304 bytes), leaving headroom
 below Vercel Functions' 4.5 MB platform limit. The SDK enforces the same limit
 before networking.
