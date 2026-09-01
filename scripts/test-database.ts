@@ -23,6 +23,9 @@ const fixture = JSON.parse(
 ) as JsonObject;
 const secret = "A".repeat(43);
 const digest = digestSecret(secret);
+const productionSecret = "B".repeat(43);
+const productionDigest = digestSecret(productionSecret);
+const fixtureTraceID = (fixture.trace as JsonObject).id as string;
 const sql = postgres(databaseURL, { max: 1, prepare: false });
 
 async function expectDatabaseCode(
@@ -63,19 +66,21 @@ try {
   `;
 
   const [app] = await sql<{ id: string }[]>`
-    insert into ledge_private.ledge_apps (service_name, environment)
-    values ('sample-app', 'development')
+    insert into ledge_private.ledge_apps (service_name)
+    values ('sample-app')
     returning id
   `;
   assert(app);
   await sql`
     insert into ledge_private.ledge_ingest_keys (
       app_id,
+      environment,
       name,
       key_prefix,
       secret_digest
     ) values (
       ${app.id}::uuid,
+      'development',
       'integration',
       'lk_abcdefghijkl',
       decode(${digest}, 'hex')
@@ -85,6 +90,7 @@ try {
   const inserted = await ingest("lk_abcdefghijkl", digest, fixture);
   assert.equal(inserted.outcome, "inserted");
   assert.equal(inserted.appId, app.id);
+  assert.equal(inserted.environment, "development");
 
   const duplicate = await ingest("lk_abcdefghijkl", digest, fixture);
   assert.equal(duplicate.outcome, "duplicate");
@@ -94,10 +100,63 @@ try {
   assert(countRow);
   assert.equal(countRow.count, 1);
 
-  const stored = await sql<{ envelope: JsonObject }[]>`
-    select envelope from ledge_private.ledge_traces limit 1
+  const stored = await sql<{ environment: string; envelope: JsonObject }[]>`
+    select environment, envelope
+      from ledge_private.ledge_traces
+     where environment = 'development'
   `;
+  assert.equal(stored[0]?.environment, "development");
   assert.deepEqual(stored[0]?.envelope, fixture);
+
+  await sql`
+    insert into ledge_private.ledge_ingest_keys (
+      app_id,
+      environment,
+      name,
+      key_prefix,
+      secret_digest
+    ) values (
+      ${app.id}::uuid,
+      'production',
+      'integration-production',
+      'lk_mnopqrstuvwx',
+      decode(${productionDigest}, 'hex')
+    )
+  `;
+  const productionInsert = await ingest(
+    "lk_mnopqrstuvwx",
+    productionDigest,
+    fixture,
+  );
+  assert.equal(productionInsert.outcome, "inserted");
+  assert.equal(productionInsert.appId, app.id);
+  assert.equal(productionInsert.environment, "production");
+
+  const [environmentCount] = await sql<{ count: number }[]>`
+    select count(*)::integer as count
+      from ledge_private.ledge_traces
+     where app_id = ${app.id}::uuid
+       and id = ${fixtureTraceID}::uuid
+  `;
+  assert.equal(environmentCount?.count, 2);
+
+  const [deletedProduction] = await sql<{ deleted: boolean }[]>`
+    select ledge_private.delete_trace(
+      ${app.id}::uuid,
+      'production',
+      ${fixtureTraceID}::uuid
+    ) as deleted
+  `;
+  assert.equal(deletedProduction?.deleted, true);
+
+  const [developmentStillStored] = await sql<{ count: number }[]>`
+    select count(*)::integer as count
+      from ledge_private.ledge_traces
+     where app_id = ${app.id}::uuid
+       and environment = 'development'
+       and id = ${fixtureTraceID}::uuid
+  `;
+  assert.equal(developmentStillStored?.count, 1);
 
   const conflict = structuredClone(fixture);
   (conflict.trace as JsonObject).output = { changed: true };
@@ -150,6 +209,7 @@ try {
     },
   );
   assert.equal(restResult.outcome, "inserted");
+  assert.equal(restResult.environment, "development");
 
   const handlerPayload = structuredClone(fixture);
   const handlerTraceID = "83A1A8C0-13E5-42A9-BCF0-02F9B419415D";

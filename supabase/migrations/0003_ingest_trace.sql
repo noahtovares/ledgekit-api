@@ -12,6 +12,7 @@ declare
     v_digest bytea;
     v_key_id uuid;
     v_app_id uuid;
+    v_environment text;
     v_service_name text;
     v_trace_id uuid;
     v_trace_name text;
@@ -32,8 +33,8 @@ begin
 
     v_digest := pg_catalog.decode(p_secret_digest_hex, 'hex');
 
-    select key.id, key.app_id, app.service_name
-      into v_key_id, v_app_id, v_service_name
+    select key.id, key.app_id, key.environment, app.service_name
+      into v_key_id, v_app_id, v_environment, v_service_name
       from ledge_private.ledge_ingest_keys as key
       join ledge_private.ledge_apps as app on app.id = key.app_id
      where key.key_prefix = p_key_prefix
@@ -81,6 +82,7 @@ begin
 
     insert into ledge_private.ledge_traces (
         app_id,
+        environment,
         id,
         trace_name,
         trace_version,
@@ -90,6 +92,7 @@ begin
         envelope
     ) values (
         v_app_id,
+        v_environment,
         v_trace_id,
         v_trace_name,
         v_trace_version,
@@ -98,15 +101,17 @@ begin
         v_ended_at,
         p_payload
     )
-    on conflict (app_id, id) do nothing;
+    on conflict (app_id, environment, id) do nothing;
 
     get diagnostics v_inserted = row_count;
 
     if v_inserted = 0 then
         select trace.envelope
           into v_existing
-          from ledge_private.ledge_traces as trace
-         where trace.app_id = v_app_id and trace.id = v_trace_id;
+         from ledge_private.ledge_traces as trace
+         where trace.app_id = v_app_id
+           and trace.environment = v_environment
+           and trace.id = v_trace_id;
 
         if v_existing is distinct from p_payload then
             raise sqlstate 'PT409' using message = 'trace_conflict';
@@ -123,7 +128,8 @@ begin
     return pg_catalog.jsonb_build_object(
         'outcome', v_outcome,
         'traceId', v_trace_id,
-        'appId', v_app_id
+        'appId', v_app_id,
+        'environment', v_environment
     );
 end;
 $$;

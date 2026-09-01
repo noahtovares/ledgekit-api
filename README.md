@@ -63,16 +63,17 @@ passes.
 
 ```sh
 DATABASE_URL=... npm run create-app -- \
-  --service sample-app \
-  --environment development
+  --service sample-app
 
 DATABASE_URL=... npm run create-key -- \
   --app-id <app-uuid> \
+  --environment development \
   --name local-development
 ```
 
 `create-key` prints the complete ingest key exactly once. Store it immediately
-in the application's secret configuration.
+in the application's secret configuration. The authenticated key determines
+the trusted environment; clients cannot select an environment in a trace.
 
 Run a sanitized end-to-end request:
 
@@ -103,7 +104,11 @@ select cron.schedule(
 Operators can delete a specific trace with:
 
 ```sql
-select ledge_private.delete_trace('<app-id>', '<trace-id>');
+select ledge_private.delete_trace(
+  '<app-id>',
+  'production',
+  '<trace-id>'
+);
 ```
 
 ## Verification

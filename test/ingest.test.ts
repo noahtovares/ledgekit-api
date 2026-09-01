@@ -4,13 +4,14 @@ import { MAX_BODY_BYTES } from "../src/constants.js";
 import { handleTraceRequest } from "../src/ingest.js";
 import { SupabaseRpcError } from "../src/supabase.js";
 import type { IngestTelemetry } from "../src/telemetry.js";
-import { fixtureEnvelope, testConfig, traceRequest } from "./helpers.js";
+import { fixtureEnvelope, traceRequest } from "./helpers.js";
 
 function dependencies(
   submit = vi.fn().mockResolvedValue({
     outcome: "inserted",
     traceId: "8C41C7D7-0959-4CA2-A73F-A623C50F11C9",
     appId: "00000000-0000-4000-8000-000000000001",
+    environment: "development",
   }),
 ) {
   const events: IngestTelemetry[] = [];
@@ -18,7 +19,6 @@ function dependencies(
     submit,
     events,
     value: {
-      config: testConfig,
       submit,
       telemetry: (event: IngestTelemetry) => events.push(event),
       now: () => 100,
@@ -57,6 +57,7 @@ describe("POST /v1/traces", () => {
         outcome: "duplicate",
         traceId: "8C41C7D7-0959-4CA2-A73F-A623C50F11C9",
         appId: "00000000-0000-4000-8000-000000000001",
+        environment: "development",
       }),
     );
     expect(

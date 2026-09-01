@@ -11,6 +11,14 @@ export function requiredArgument(name: string): string {
   return value;
 }
 
+export function requiredEnvironment(): string {
+  const environment = requiredArgument("environment");
+  if (!["development", "staging", "production"].includes(environment)) {
+    throw new Error("invalid_environment");
+  }
+  return environment;
+}
+
 export function operatorDatabase() {
   const databaseURL = process.env.DATABASE_URL;
   if (!databaseURL) throw new Error("missing_DATABASE_URL");

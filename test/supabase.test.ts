@@ -19,6 +19,7 @@ describe("Supabase RPC client", () => {
         outcome: "inserted",
         traceId: "8C41C7D7-0959-4CA2-A73F-A623C50F11C9",
         appId: "00000000-0000-4000-8000-000000000001",
+        environment: "development",
       }),
     );
 

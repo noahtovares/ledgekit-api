@@ -72,7 +72,10 @@ export async function ingestThroughSupabase(
   if (
     (result.outcome !== "inserted" && result.outcome !== "duplicate") ||
     typeof result.traceId !== "string" ||
-    typeof result.appId !== "string"
+    typeof result.appId !== "string" ||
+    (result.environment !== "development" &&
+      result.environment !== "staging" &&
+      result.environment !== "production")
   ) {
     throw new SupabaseRpcError("temporary");
   }

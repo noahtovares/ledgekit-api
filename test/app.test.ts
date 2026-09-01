@@ -9,6 +9,7 @@ function testApp(
     outcome: "inserted" as const,
     traceId: "7B14B1B1-AF6B-4D62-BF0F-122A326B29F1",
     appId: "932F1786-B94C-414B-BCEE-F474949F86F9",
+    environment: "development" as const,
   })),
 ) {
   const events: IngestTelemetry[] = [];

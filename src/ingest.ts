@@ -6,7 +6,7 @@ import { validateEnvelope } from "./envelope.js";
 import { emptyResponse, errorResponse } from "./responses.js";
 import { SupabaseRpcError } from "./supabase.js";
 import type { TelemetryLogger } from "./telemetry.js";
-import type { JsonObject, RpcResult } from "./types.js";
+import type { JsonObject, LedgeEnvironment, RpcResult } from "./types.js";
 
 export interface IngestDependencies {
   submit: (input: {
@@ -42,6 +42,7 @@ export async function handleTraceRequest(
   let traceName: string | undefined;
   let traceVersion: number | undefined;
   let appID: string | undefined;
+  let environment: LedgeEnvironment | undefined;
   let responseBytes = 0;
 
   const finish = (response: Response, code?: string): Response => {
@@ -133,6 +134,7 @@ export async function handleTraceRequest(
         payload: envelope.payload,
       });
       appID = result.appId;
+      environment = result.environment;
       return finish(
         emptyResponse(result.outcome === "inserted" ? 201 : 200, requestID),
       );
@@ -167,6 +169,7 @@ export async function handleTraceRequest(
       ...(errorCode === undefined ? {} : { errorCode }),
       ...(keyPrefix === undefined ? {} : { keyPrefix }),
       ...(appID === undefined ? {} : { appId: appID }),
+      ...(environment === undefined ? {} : { environment }),
       ...(traceID === undefined ? {} : { traceId: traceID }),
       ...(traceName === undefined ? {} : { traceName }),
       ...(traceVersion === undefined ? {} : { traceVersion }),

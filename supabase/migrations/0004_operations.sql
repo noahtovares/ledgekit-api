@@ -18,6 +18,7 @@ $$;
 
 create or replace function ledge_private.delete_trace(
     p_app_id uuid,
+    p_environment text,
     p_trace_id uuid
 )
 returns boolean
@@ -28,7 +29,9 @@ declare
     v_deleted integer;
 begin
     delete from ledge_private.ledge_traces
-     where app_id = p_app_id and id = p_trace_id;
+     where app_id = p_app_id
+       and environment = p_environment
+       and id = p_trace_id;
     get diagnostics v_deleted = row_count;
     return v_deleted = 1;
 end;
