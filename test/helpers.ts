@@ -1,6 +1,5 @@
 import fixture from "./fixtures/ledge-trace-v1.json" with { type: "json" };
 
-import { MAX_BODY_BYTES } from "../src/constants.js";
 import type { RuntimeConfig } from "../src/config.js";
 
 export const ingestToken = `lk_abcdefghijkl.${"A".repeat(43)}`;
@@ -8,8 +7,6 @@ export const ingestToken = `lk_abcdefghijkl.${"A".repeat(43)}`;
 export const testConfig: RuntimeConfig = {
   supabaseURL: "https://example.supabase.co",
   supabaseSecretKey: "sb_secret_test",
-  maximumBodyBytes: MAX_BODY_BYTES,
-  postgrestTimeoutMilliseconds: 10_000,
 };
 
 export function fixtureEnvelope(): Record<string, unknown> {

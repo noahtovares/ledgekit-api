@@ -1,14 +1,3 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    {
-      "source": "/v1/traces",
-      "destination": "/api/v1/traces"
-    }
-  ],
-  "functions": {
-    "api/v1/traces.ts": {
-      "maxDuration": 15
-    }
-  }
+  "$schema": "https://openapi.vercel.sh/vercel.json"
 }

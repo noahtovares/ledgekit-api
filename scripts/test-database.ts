@@ -142,8 +142,6 @@ try {
     {
       supabaseURL,
       supabaseSecretKey,
-      maximumBodyBytes: 4 * 1_024 * 1_024,
-      postgrestTimeoutMilliseconds: 10_000,
     },
     {
       keyPrefix: "lk_abcdefghijkl",
@@ -168,12 +166,6 @@ try {
       body: JSON.stringify(handlerPayload),
     });
   const handlerDependencies = {
-    config: {
-      supabaseURL,
-      supabaseSecretKey,
-      maximumBodyBytes: 4 * 1_024 * 1_024,
-      postgrestTimeoutMilliseconds: 10_000,
-    },
     submit: (input: {
       keyPrefix: string;
       secretDigestHex: string;
@@ -183,8 +175,6 @@ try {
         {
           supabaseURL,
           supabaseSecretKey,
-          maximumBodyBytes: 4 * 1_024 * 1_024,
-          postgrestTimeoutMilliseconds: 10_000,
         },
         input,
       ),
@@ -219,8 +209,6 @@ try {
       {
         supabaseURL,
         supabaseSecretKey,
-        maximumBodyBytes: 4 * 1_024 * 1_024,
-        postgrestTimeoutMilliseconds: 10_000,
       },
       {
         keyPrefix: "lk_abcdefghijkl",

@@ -1,4 +1,5 @@
 import type { RuntimeConfig } from "./config.js";
+import { POSTGREST_TIMEOUT_MS } from "./constants.js";
 import type { JsonObject, RpcResult } from "./types.js";
 
 export type SupabaseFailureKind =
@@ -50,7 +51,7 @@ export async function ingestThroughSupabase(
           p_secret_digest_hex: input.secretDigestHex,
           p_payload: input.payload,
         }),
-        signal: AbortSignal.timeout(config.postgrestTimeoutMilliseconds),
+        signal: AbortSignal.timeout(POSTGREST_TIMEOUT_MS),
       },
     );
   } catch {

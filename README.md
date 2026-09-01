@@ -1,12 +1,16 @@
 # LedgeKit Backend
 
-LedgeKit Backend accepts complete v1 trace envelopes, authenticates per-app
-ingest keys, and stores the envelopes in a dedicated Supabase PostgreSQL
-project. The public API is one Vercel Function:
+LedgeKit Backend is a small Hono API running as a Vercel Function. It accepts
+complete v1 trace envelopes, authenticates per-app ingest keys, and stores the
+envelopes in a dedicated Supabase PostgreSQL project:
 
 ```text
 POST /v1/traces -> Vercel Function -> Supabase PostgREST RPC -> PostgreSQL
 ```
+
+`GET /health` reports process health without querying Supabase. Hono owns only
+routing, request IDs, security headers, and top-level errors; ingestion and
+storage remain framework-independent.
 
 The application limit is exactly 4 MiB (4,194,304 bytes), leaving headroom
 below Vercel Functions' 4.5 MB platform limit. The SDK enforces the same limit
@@ -39,8 +43,6 @@ Configure these Vercel variables:
 ```text
 SUPABASE_URL=https://<project-ref>.supabase.co
 SUPABASE_SECRET_KEY=sb_secret_...
-MAX_BODY_BYTES=4194304
-POSTGREST_TIMEOUT_MS=10000
 ```
 
 `DATABASE_URL` is only for operator scripts and must not be configured in

@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { digestSecret, parseAuthorization } from "./auth.js";
-import type { RuntimeConfig } from "./config.js";
+import { MAX_BODY_BYTES } from "./constants.js";
 import { validateEnvelope } from "./envelope.js";
 import { emptyResponse, errorResponse } from "./responses.js";
 import { SupabaseRpcError } from "./supabase.js";
@@ -9,7 +9,6 @@ import type { TelemetryLogger } from "./telemetry.js";
 import type { JsonObject, RpcResult } from "./types.js";
 
 export interface IngestDependencies {
-  config: RuntimeConfig;
   submit: (input: {
     keyPrefix: string;
     secretDigestHex: string;
@@ -77,7 +76,7 @@ export async function handleTraceRequest(
     }
     if (
       declaredLength !== null &&
-      declaredLength > dependencies.config.maximumBodyBytes
+      declaredLength > MAX_BODY_BYTES
     ) {
       return finish(
         errorResponse(413, "payload_too_large", requestID),
@@ -95,7 +94,7 @@ export async function handleTraceRequest(
     keyPrefix = credential.keyPrefix;
 
     const body = new Uint8Array(await request.arrayBuffer());
-    if (body.byteLength > dependencies.config.maximumBodyBytes) {
+    if (body.byteLength > MAX_BODY_BYTES) {
       return finish(
         errorResponse(413, "payload_too_large", requestID),
         "payload_too_large",
