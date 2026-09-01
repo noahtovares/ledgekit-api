@@ -1,4 +1,4 @@
-project_id = "ledgekit-backend"
+project_id = "ledgekit-api"
 
 [api]
 enabled = true

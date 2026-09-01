@@ -1,6 +1,6 @@
-# LedgeKit Backend
+# LedgeKit API
 
-LedgeKit Backend is a small Hono API running as a Vercel Function. It accepts
+LedgeKit API is a small Hono API running as a Vercel Function. It accepts
 complete v1 trace envelopes, authenticates per-app ingest keys, and stores the
 envelopes in a dedicated Supabase PostgreSQL project:
 
@@ -124,4 +124,3 @@ npm test
 
 Logs contain identifiers, status, latency, and coarse error codes only. Never
 log request bodies, tokens, token digests, trace errors, prompts, or outputs.
-# ledgekit-backend
