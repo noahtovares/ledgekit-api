@@ -1,0 +1,9 @@
+node_modules/
+.vercel/
+.env
+.env.local
+coverage/
+dist/
+.DS_Store
+supabase/.branches/
+supabase/.temp/

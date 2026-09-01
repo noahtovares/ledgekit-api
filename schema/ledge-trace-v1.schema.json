@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ledgekit.com/schema/ledge-trace-v1.schema.json",
+  "title": "Ledge trace envelope v1",
+  "type": "object",
+  "required": ["producer", "schemaVersion", "trace", "traceDefinition"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "traceDefinition": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "producer": {
+      "type": "object",
+      "required": ["appBuild", "appVersion", "osVersion", "sdkVersion", "serviceName"],
+      "properties": {
+        "serviceName": { "type": "string" },
+        "sdkVersion": { "type": "string" },
+        "appVersion": { "type": "string" },
+        "appBuild": { "type": "string" },
+        "osVersion": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "trace": { "$ref": "#/$defs/trace" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "status": {
+      "enum": ["running", "success", "failure", "cancelled", "interrupted"]
+    },
+    "error": {
+      "type": "object",
+      "required": ["code", "domain", "message", "type"],
+      "properties": {
+        "type": { "type": "string" },
+        "domain": { "type": "string" },
+        "code": { "type": "integer" },
+        "message": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "agentLoop": {
+      "type": "object",
+      "properties": {
+        "stopReason": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "span": {
+      "type": "object",
+      "required": ["id", "input", "name", "startedAt", "status"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "parentID": { "type": "string", "format": "uuid" },
+        "name": { "type": "string" },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "endedAt": { "type": "string", "format": "date-time" },
+        "durationMilliseconds": { "type": "integer", "minimum": 0 },
+        "status": { "$ref": "#/$defs/status" },
+        "input": true,
+        "output": true,
+        "error": { "$ref": "#/$defs/error" },
+        "iteration": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "trace": {
+      "type": "object",
+      "required": ["id", "input", "name", "spans", "startedAt", "status"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "name": { "type": "string" },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "endedAt": { "type": "string", "format": "date-time" },
+        "durationMilliseconds": { "type": "integer", "minimum": 0 },
+        "status": { "$ref": "#/$defs/status" },
+        "input": true,
+        "output": true,
+        "error": { "$ref": "#/$defs/error" },
+        "agentLoop": { "$ref": "#/$defs/agentLoop" },
+        "spans": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/span" }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

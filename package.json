@@ -1,0 +1,32 @@
+{
+  "name": "ledgekit-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:db": "node --import tsx scripts/test-database.ts",
+    "test:watch": "vitest",
+    "check:contract": "node --import tsx scripts/validate-contract.ts",
+    "create-app": "node --import tsx scripts/create-app.ts",
+    "create-key": "node --import tsx scripts/create-key.ts",
+    "revoke-key": "node --import tsx scripts/revoke-key.ts",
+    "smoke-test": "node --import tsx scripts/smoke-test.ts"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "postgres": "3.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

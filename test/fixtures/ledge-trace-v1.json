@@ -1,0 +1,44 @@
+{
+  "producer": {
+    "appBuild": "42",
+    "appVersion": "1.0",
+    "osVersion": "iOS 26.0",
+    "sdkVersion": "0.0.1",
+    "serviceName": "sample-app"
+  },
+  "schemaVersion": 1,
+  "trace": {
+    "durationMilliseconds": 250,
+    "endedAt": "2026-08-31T18:00:00Z",
+    "id": "8C41C7D7-0959-4CA2-A73F-A623C50F11C9",
+    "input": {
+      "query": "sanitized fixture input"
+    },
+    "name": "sample.generate_summary",
+    "output": {
+      "summary": "sanitized fixture output"
+    },
+    "spans": [
+      {
+        "durationMilliseconds": 200,
+        "endedAt": "2026-08-31T18:00:00Z",
+        "id": "36ADAFC4-6DEE-4A1D-A916-008554E35922",
+        "input": {
+          "prompt": "sanitized fixture prompt"
+        },
+        "name": "apple.foundation_models.respond",
+        "output": {
+          "response": "sanitized fixture response"
+        },
+        "startedAt": "2026-08-31T17:59:59Z",
+        "status": "success"
+      }
+    ],
+    "startedAt": "2026-08-31T17:59:59Z",
+    "status": "success"
+  },
+  "traceDefinition": {
+    "name": "sample.generate_summary",
+    "version": 1
+  }
+}
